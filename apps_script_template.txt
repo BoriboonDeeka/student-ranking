@@ -1,0 +1,95 @@
+/**
+ * Google Apps Script สำหรับเก็บผลจัดอันดับและคืนค่าสถิติ
+ * 1. เปิด Google Sheets
+ * 2. Extensions > Apps Script
+ * 3. ลบโค้ดเดิมแล้ววางโค้ดนี้
+ * 4. Deploy > New deployment > Web app
+ * - Execute as: Me
+ * - Who has access: Anyone
+ * - Copy URL มาใส่ใน SCRIPT_URL ของไฟล์ script.js
+ */
+
+const SHEET_NAME = "Responses";
+
+function doPost(e) {
+  // Set CORS headers for the response
+  const response = ContentService.createTextOutput("OK")
+      .setMimeType(ContentService.MimeType.TEXT)
+      .setHeader("Access-Control-Allow-Origin", "*");
+
+  if (!e || !e.postData || !e.postData.contents) {
+    return ContentService.createTextOutput("Invalid POST")
+      .setMimeType(ContentService.MimeType.TEXT)
+      .setHeader("Access-Control-Allow-Origin", "*"); // Add CORS for error response too
+  }
+
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME) ||
+                  SpreadsheetApp.getActiveSpreadsheet().insertSheet(SHEET_NAME);
+
+    const ranking = data.ranking || [];
+    const row = [new Date(), ...ranking];
+    sheet.appendRow(row);
+
+    return response; // Return the response with OK and CORS header
+  } catch (error) {
+    return ContentService.createTextOutput("Error processing request: " + error.message)
+      .setMimeType(ContentService.MimeType.TEXT)
+      .setHeader("Access-Control-Allow-Origin", "*");
+  }
+}
+
+function doGet(e) {
+  const output = ContentService.createTextOutput("GET OK")
+    .setMimeType(ContentService.MimeType.TEXT)
+    .setHeader("Access-Control-Allow-Origin", "*");
+
+  if (e.parameter && e.parameter.stats === "1") {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    if (!sheet) {
+      return ContentService.createTextOutput(JSON.stringify({rankings: []}))
+        .setMimeType(ContentService.MimeType.JSON)
+        .setHeader("Access-Control-Allow-Origin", "*");
+    }
+
+    const data = sheet.getDataRange().getValues();
+    // Skip header row if data exists
+    const actualData = data.length > 0 ? data.slice(1) : [];
+
+    const summary = {};
+    actualData.forEach(row => {
+      // Assuming row[0] is date, so slice from index 1 for ranking items
+      row.slice(1).forEach((item, index) => {
+        if (!item) return; // Skip empty cells
+        if (!summary[item]) summary[item] = { count: 0, sum: 0, top1: 0 };
+        summary[item].count++;
+        summary[item].sum += (index + 1); // index + 1 gives the rank (1st, 2nd, etc.)
+        if (index === 0) summary[item].top1++; // If it's the first item in the slice, it's rank 1
+      });
+    });
+
+    const result = Object.keys(summary).map(key => ({
+      name: key,
+      count: summary[key].count,
+      avg: summary[key].sum / summary[key].count,
+      top1: summary[key].top1
+    }));
+
+    return ContentService.createTextOutput(JSON.stringify({rankings: result}))
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeader("Access-Control-Allow-Origin", "*");
+  }
+
+  return output;
+}
+
+function doOptions(e) {
+  // This function handles the CORS preflight request (OPTIONS method)
+  // It tells the browser what methods and headers are allowed.
+  return ContentService.createTextOutput("")
+    .setMimeType(ContentService.MimeType.TEXT)
+    .setHeader("Access-Control-Allow-Origin", "*")
+    .setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+    .setHeader("Access-Control-Allow-Headers", "Content-Type");
+}
