@@ -1,5 +1,5 @@
 /* === ปรับ URL แอปส์สคริปต์ของคุณ === */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwZzlCXW2uaWo4bEnJybLYaLkyZtHy_HFaR4RpJAmrkhox6CEay-_MO5pV5keI3axbk/exec"; // <-- เปลี่ยนตรงนี้ให้เป็น URL web app ของคุณ
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw70brXrLejPD63POmEVOAzSETL9w2KAKLGMlLjVokDAYePIhVdtNISCvv9gvRkjdie/exec"; // <-- เปลี่ยนตรงนี้ให้เป็น URL web app ของคุณ
 
 /* ===== ข้อมูลพื้นฐาน ===== */
 const defaultItems = [
