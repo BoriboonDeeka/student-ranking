@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>จัดอันดับสาขาวิชา</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="ranking-view">
+    <h2>ลากและจัดอันดับสาขาที่คุณสนใจ</h2>
+    <p>เรียงจากมากที่สุด (บน) ไปน้อยที่สุด (ล่าง)</p>
+    <ul id="sortable-list"></ul>
+    <button onclick="submitRanking()">ส่งคำตอบ</button>
+    <pre id="output"></pre>
+    <hr/>
+    <button id="login-btn" onclick="showLogin()">Admin Login</button>
+  </div>
+
+  <div id="login-view" class="hidden">
+    <h3>Admin Login</h3>
+    <label>Username: <input type="text" id="user"></label><br/>
+    <label>Password: <input type="password" id="pass"></label><br/>
+    <button onclick="doLogin()">เข้าสู่ระบบ</button>
+    <button onclick="hideLogin()">ยกเลิก</button>
+    <p id="login-msg" class="error"></p>
+  </div>
+
+  <div id="admin-view" class="hidden">
+    <h2>Admin Panel</h2>
+    <p>เพิ่ม ลบ แก้ไข ข้อความ (หนึ่งบรรทัดต่อหนึ่งรายการ):</p>
+    <textarea id="admin-items" rows="10" cols="50"></textarea><br/>
+    <button onclick="saveItems()">บันทึกข้อความ</button>
+    <button onclick="showStats()">รีเฟรชสถิติ</button>
+    <button onclick="logout()">ออกจากระบบ</button>
+    <p id="admin-msg"></p>
+    <h3>สถิติผลสำรวจ</h3>
+    <div id="stats">ยังไม่มีข้อมูล</div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
